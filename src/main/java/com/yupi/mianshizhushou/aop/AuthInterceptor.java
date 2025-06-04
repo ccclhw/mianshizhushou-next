@@ -36,14 +36,17 @@ public class AuthInterceptor {
      * @param joinPoint
      * @param authCheck
      * @return
+     * 环绕通知 在目标方法的前后都执行doInterceptor方法进行权限检查 匹配所有带AuthCheck注解的方法
      */
     @Around("@annotation(authCheck)")
     public Object doInterceptor(ProceedingJoinPoint joinPoint, AuthCheck authCheck) throws Throwable {
-        String mustRole = authCheck.mustRole();
+        String mustRole = authCheck.mustRole();//通过注解注入 获取注解中的属性值
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+        //获取请求对象
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
         // 当前登录用户
         User loginUser = userService.getLoginUser(request);
+        //权限校验 将注解中的角色值 转换为UserRoleEnum枚举类型
         UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
         // 不需要权限，放行
         if (mustRoleEnum == null) {

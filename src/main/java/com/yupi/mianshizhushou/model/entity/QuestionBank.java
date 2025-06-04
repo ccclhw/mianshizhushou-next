@@ -3,22 +3,19 @@ package com.yupi.mianshizhushou.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
-/**
- * 用户
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
- */
-@TableName(value = "user")
-@Data
-public class User implements Serializable {
+import java.io.Serializable;
+import java.util.Date;
 
+/**
+ * 题库
+ * @TableName question_bank
+ */
+@TableName(value ="question_bank")
+@Data
+public class QuestionBank implements Serializable {
     /**
      * id
      */
@@ -26,55 +23,34 @@ public class User implements Serializable {
     private Long id;
 
     /**
-     * 用户账号
+     * 标题
      */
-    private String userAccount;
+    private String title;
 
     /**
-     * 用户密码
+     * 描述
      */
-    private String userPassword;
+    private String description;
 
     /**
-     * 开放平台id
+     * 图片
      */
-    private String unionId;
+    private String picture;
 
     /**
-     * 公众号openId
+     * 创建用户 id
      */
-    private String mpOpenId;
+    private Long userId;
 
     /**
-     * 用户昵称
-     */
-    private String userName;
-
-    /**
-     * 用户头像
-     */
-    private String userAvatar;
-
-    /**
-     * 用户简介
-     */
-    private String userProfile;
-
-    /**
-     * 用户角色：user/admin/ban
-     */
-    private String userRole;
-
-    /*
      * 编辑时间
-     * */
+     */
     private Date editTime;
 
     /**
      * 创建时间
      */
     private Date createTime;
-
 
     /**
      * 更新时间
@@ -84,7 +60,6 @@ public class User implements Serializable {
     /**
      * 是否删除
      */
-    @TableLogic
     private Integer isDelete;
 
     @TableField(exist = false)

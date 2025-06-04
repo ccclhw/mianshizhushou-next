@@ -7,10 +7,13 @@ import com.yupi.mianshizhushou.model.entity.User;
 import com.yupi.mianshizhushou.model.vo.LoginUserVO;
 import com.yupi.mianshizhushou.model.vo.UserVO;
 
+
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
+
 
 /**
  * 用户服务
@@ -119,5 +122,17 @@ public interface UserService extends IService<User> {
      * @return
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
+
+    /**
+     * 添加用户签到记录
+     * @param id
+     * @return
+     */
+    boolean addUserSignIn(Long id);
+
+    /*
+    * 查询用户签到记录
+    * */
+    List<Integer> getUserSignInRecord(Long userId, Integer year);
 
 }

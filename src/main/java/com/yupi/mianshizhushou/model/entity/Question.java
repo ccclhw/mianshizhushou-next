@@ -3,78 +3,59 @@ package com.yupi.mianshizhushou.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
-/**
- * 用户
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
- */
-@TableName(value = "user")
-@Data
-public class User implements Serializable {
+import java.io.Serializable;
+import java.util.Date;
 
+/**
+ * 题目
+ * @TableName question
+ */
+@TableName(value ="question")
+@Data
+public class Question implements Serializable {
     /**
-     * id
+     * id 指定主键策略 更换策略为雪花算法 防止被爬虫
      */
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
-     * 用户账号
+     * 标题
      */
-    private String userAccount;
+    private String title;
 
     /**
-     * 用户密码
+     * 内容
      */
-    private String userPassword;
+    private String content;
 
     /**
-     * 开放平台id
+     * 标签列表（json 数组）
      */
-    private String unionId;
+    private String tags;
 
     /**
-     * 公众号openId
+     * 推荐答案
      */
-    private String mpOpenId;
+    private String answer;
 
     /**
-     * 用户昵称
+     * 创建用户 id
      */
-    private String userName;
+    private Long userId;
 
     /**
-     * 用户头像
-     */
-    private String userAvatar;
-
-    /**
-     * 用户简介
-     */
-    private String userProfile;
-
-    /**
-     * 用户角色：user/admin/ban
-     */
-    private String userRole;
-
-    /*
      * 编辑时间
-     * */
+     */
     private Date editTime;
 
     /**
      * 创建时间
      */
     private Date createTime;
-
 
     /**
      * 更新时间
@@ -84,7 +65,6 @@ public class User implements Serializable {
     /**
      * 是否删除
      */
-    @TableLogic
     private Integer isDelete;
 
     @TableField(exist = false)

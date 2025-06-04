@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yupi.mianshizhushou.common.ErrorCode;
 import com.yupi.mianshizhushou.constant.CommonConstant;
+import com.yupi.mianshizhushou.constant.RedisConstant;
 import com.yupi.mianshizhushou.constant.UserConstant;
 import com.yupi.mianshizhushou.mapper.UserMapper;
 import com.yupi.mianshizhushou.model.dto.user.UserQueryRequest;
@@ -16,17 +17,22 @@ import com.yupi.mianshizhushou.service.UserService;
 import com.yupi.mianshizhushou.utils.SqlUtils;
 import com.yupi.mianshizhushou.exception.BusinessException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.Year;
+import java.util.*;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RBitSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
 
 /**
  * 用户服务实现
@@ -37,6 +43,9 @@ import org.springframework.util.DigestUtils;
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    @Resource
+    private RedissonClient redissonClient;
 
     /**
      * 盐值，混淆密码
@@ -269,5 +278,60 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public boolean addUserSignIn(Long id) {
+        //获取当前时间
+        LocalDate date = LocalDate.now();
+        //设置key
+        String key = RedisConstant.getUserSignInRedisKey(date.getYear(), id);
+        //通过Redisson客户端获取一个RBitSet对象，这个对象对应于Redis中的一个位集合bitmap
+        RBitSet bitSet = redissonClient.getBitSet(key);
+        //获取偏移量
+        int offset = date.getDayOfYear();
+        //判断能否查询到偏移量
+        if (!bitSet.get(offset)) {
+            bitSet.set(offset,true);
+        }
+        //当天已经签到
+        return true;
+    }
+
+    /*
+     * 查询用户签到记录
+     * */
+    @Override
+    public List<Integer> getUserSignInRecord(Long userId, Integer year) {
+        if (year==null){
+            LocalDate date = LocalDate.now();
+            year=date.getYear();
+        }
+        //得到key
+        String key = RedisConstant.getUserSignInRedisKey(year, userId);
+        //java中的bitmap对象
+        RBitSet bitSet = redissonClient.getBitSet(key);
+        //用来存储哪一天刷题了
+        List<Integer> dayList = new ArrayList<>();
+        //当前月份的总天数
+        int days = Year.of(year).length();
+        //加载Bitmap到内存中，避免向redis发送多次请求
+        BitSet bitSet1 = bitSet.asBitSet();
+        //从索引0开始寻找下一个为1的位置 找到了会返回改位的索引 没找到就会返回-1
+        int index = bitSet1.nextSetBit(0);
+        while (index>=0){
+            dayList.add(index);
+            //查找下一个为1的索引
+            index=bitSet1.nextSetBit(index+1);
+        }
+        for (int dayofYear=1;dayofYear<=days;dayofYear++){
+            boolean hasRecord = bitSet1.get(dayofYear);
+            //如果有刷题记录 就将该天添加进dayList中
+            if (hasRecord){
+                dayList.add(dayofYear);
+            }
+        }
+        return dayList;
+
     }
 }
