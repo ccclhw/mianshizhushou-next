@@ -3,17 +3,19 @@ package com.yupi.mianshizhushou.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yupi.mianshizhushou.model.dto.post.PostQueryRequest;
 import com.yupi.mianshizhushou.model.dto.question.QuestionQueryRequest;
+import com.yupi.mianshizhushou.model.entity.Post;
 import com.yupi.mianshizhushou.model.entity.Question;
 import com.yupi.mianshizhushou.model.vo.QuestionVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 题目服务
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
+
  */
 public interface QuestionService extends IService<Question> {
 
@@ -50,6 +52,14 @@ public interface QuestionService extends IService<Question> {
     Page<Question> listQuestionByPage(QuestionQueryRequest questionQueryRequest);
 
     /**
+     * 从 ES 查询
+     *
+     * @param questionQueryRequest
+     * @return
+     */
+    Page<Question> searchFromEs(QuestionQueryRequest questionQueryRequest);
+
+    /**
      * 分页获取题目封装
      *
      * @param questionPage
@@ -57,4 +67,14 @@ public interface QuestionService extends IService<Question> {
      * @return
      */
     Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request);
+
+
+    /**
+     * 批量删除题目
+     *
+     * @param questionIdList
+     */
+    void batchDeleteQuestion(List<Long> questionIdList);
+
+
 }

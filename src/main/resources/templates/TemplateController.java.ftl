@@ -28,8 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * ${dataName}接口
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
+
  */
 @RestController
 @RequestMapping("/${dataKey}")
@@ -101,11 +100,12 @@ public class ${upperDataKey}Controller {
      * 更新${dataName}（仅管理员可用）
      *
      * @param ${dataKey}UpdateRequest
-     * @return
-     */
-    @PostMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> update${upperDataKey}(@RequestBody ${upperDataKey}UpdateRequest ${dataKey}UpdateRequest) {
+        * @return
+        */
+        @PostMapping("/update")
+        @SaCheckRole(UserConstant.ADMIN_ROLE)
+        public BaseResponse
+        <Boolean> update${upperDataKey}(@RequestBody ${upperDataKey}UpdateRequest ${dataKey}UpdateRequest) {
         if (${dataKey}UpdateRequest == null || ${dataKey}UpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -144,11 +144,13 @@ public class ${upperDataKey}Controller {
      * 分页获取${dataName}列表（仅管理员可用）
      *
      * @param ${dataKey}QueryRequest
-     * @return
-     */
-    @PostMapping("/list/page")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Page<${upperDataKey}>> list${upperDataKey}ByPage(@RequestBody ${upperDataKey}QueryRequest ${dataKey}QueryRequest) {
+                * @return
+                */
+                @PostMapping("/list/page")
+                @SaCheckRole(UserConstant.ADMIN_ROLE)
+                public BaseResponse
+                <Page
+                <${upperDataKey}>> list${upperDataKey}ByPage(@RequestBody ${upperDataKey}QueryRequest ${dataKey}QueryRequest) {
         long current = ${dataKey}QueryRequest.getCurrent();
         long size = ${dataKey}QueryRequest.getPageSize();
         // 查询数据库

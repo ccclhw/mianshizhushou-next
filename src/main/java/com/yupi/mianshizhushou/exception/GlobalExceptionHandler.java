@@ -1,5 +1,7 @@
 package com.yupi.mianshizhushou.exception;
 
+import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotRoleException;
 import com.yupi.mianshizhushou.common.BaseResponse;
 import com.yupi.mianshizhushou.common.ErrorCode;
 import com.yupi.mianshizhushou.common.ResultUtils;
@@ -10,8 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 /**
  * 全局异常处理器
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
+ * 
  */
 @RestControllerAdvice
 @Slf4j
@@ -28,4 +29,19 @@ public class GlobalExceptionHandler {
         log.error("RuntimeException", e);
         return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "系统错误");
     }
+
+    //全局拦截NotRoleException异常
+    @ExceptionHandler(NotRoleException.class)
+    public BaseResponse<?> notRoleExceptionHandler(RuntimeException e) {
+        log.error("NotRoleException", e);
+        return ResultUtils.error(ErrorCode.NO_AUTH_ERROR, "无权限");
+    }
+
+    //全局拦截NotLoginException异常
+    @ExceptionHandler(NotLoginException.class)
+    public BaseResponse<?> notLoginExceptionHandler(RuntimeException e) {
+        log.error("NotLoginException", e);
+        return ResultUtils.error(ErrorCode.NOT_LOGIN_ERROR, "未登录");
+    }
+
 }

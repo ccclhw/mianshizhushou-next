@@ -1,5 +1,6 @@
 package com.yupi.mianshizhushou.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,10 +12,7 @@ import com.yupi.mianshizhushou.common.ResultUtils;
 import com.yupi.mianshizhushou.constant.UserConstant;
 import com.yupi.mianshizhushou.exception.BusinessException;
 import com.yupi.mianshizhushou.exception.ThrowUtils;
-import com.yupi.mianshizhushou.model.dto.questionBankQuestion.QuestionBankQuestionAddRequest;
-import com.yupi.mianshizhushou.model.dto.questionBankQuestion.QuestionBankQuestionQueryRequest;
-import com.yupi.mianshizhushou.model.dto.questionBankQuestion.QuestionBankQuestionRemoveRequest;
-import com.yupi.mianshizhushou.model.dto.questionBankQuestion.QuestionBankQuestionUpdateRequest;
+import com.yupi.mianshizhushou.model.dto.questionBankQuestion.*;
 import com.yupi.mianshizhushou.model.entity.QuestionBankQuestion;
 import com.yupi.mianshizhushou.model.entity.User;
 import com.yupi.mianshizhushou.model.vo.QuestionBankQuestionVO;
@@ -30,8 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * 题库题目接口
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
+
  */
 @RestController
 @RequestMapping("/questionBankQuestion")
@@ -72,14 +69,45 @@ public class QuestionBankQuestionController {
         return ResultUtils.success(newQuestionBankQuestionId);
     }
 
+    /**
+     * 批量向题库中添加题目
+     *
+     * @param questionBankQuestionBatchAddRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/add/batch")
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> batchAddQuestionsToBank(@RequestBody QuestionBankQuestionBatchAddRequest questionBankQuestionBatchAddRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(questionBankQuestionBatchAddRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
+        questionBankQuestionService.batchAddQuestionsToBank(questionBankQuestionBatchAddRequest.getQuestionIdList(), questionBankQuestionBatchAddRequest.getQuestionBankId(), loginUser);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 批量从题库中移除题目
+     *
+     * @param questionBankQuestionBatchRemoveRequest
+     * @return
+     */
+    @PostMapping("/remove/batch")
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> batchRemoveQuestionsToBank(@RequestBody QuestionBankQuestionBatchRemoveRequest questionBankQuestionBatchRemoveRequest) {
+        ThrowUtils.throwIf(questionBankQuestionBatchRemoveRequest == null, ErrorCode.PARAMS_ERROR);
+        questionBankQuestionService.batchRemoveQuestionsToBank(questionBankQuestionBatchRemoveRequest.getQuestionIdList(), questionBankQuestionBatchRemoveRequest.getQuestionBankId());
+        return ResultUtils.success(true);
+    }
+
     @PostMapping("/remove")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> removeQuestionBankQuestion(@RequestBody QuestionBankQuestionRemoveRequest removeRequest) {
         //参数校验
-        ThrowUtils.throwIf(removeRequest == null,ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(removeRequest == null, ErrorCode.PARAMS_ERROR);
         Long questionBankId = removeRequest.getQuestionBankId();
         Long questionId = removeRequest.getQuestionId();
-        ThrowUtils.throwIf(questionBankId == null||questionId==null, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(questionBankId == null || questionId == null, ErrorCode.PARAMS_ERROR);
         //构建查询条件
         LambdaQueryWrapper<QuestionBankQuestion> lambdaQueryWrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
                 .eq(QuestionBankQuestion::getQuestionBankId, questionBankId)
@@ -123,7 +151,7 @@ public class QuestionBankQuestionController {
      * @return
      */
     @PostMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateQuestionBankQuestion(@RequestBody QuestionBankQuestionUpdateRequest questionBankQuestionUpdateRequest) {
         if (questionBankQuestionUpdateRequest == null || questionBankQuestionUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -166,7 +194,7 @@ public class QuestionBankQuestionController {
      * @return
      */
     @PostMapping("/list/page")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<QuestionBankQuestion>> listQuestionBankQuestionByPage(@RequestBody QuestionBankQuestionQueryRequest questionBankQuestionQueryRequest) {
         long current = questionBankQuestionQueryRequest.getCurrent();
         long size = questionBankQuestionQueryRequest.getPageSize();
@@ -221,6 +249,5 @@ public class QuestionBankQuestionController {
         // 获取封装类
         return ResultUtils.success(questionBankQuestionService.getQuestionBankQuestionVOPage(questionBankQuestionPage, request));
     }
-
     // endregion
 }
