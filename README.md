@@ -1,179 +1,55 @@
-# SpringBoot 项目初始模板
+## 项目名称：面试助手
 
+### 技术栈
+- **后端框架：** Spring Boot
+- **数据库：** MySQL
+- **缓存中间件：** Redis
+- **搜索引擎：** Elasticsearch
+- **连接池：** Druid
+- **服务治理与配置中心：** Nacos
+- **限流与熔断：** Sentinel、HotKey
+- **权限认证：** Sa-Token
 
-基于 Java SpringBoot 的项目初始模板，整合了常用框架和主流业务的示例代码。
+### 部署环境
+- 已上线部署
 
-只需 1 分钟即可完成内容网站的后端！！！大家还可以在此基础上快速开发自己的项目。
+---
 
-[toc]
+### 项目概述
+面试助手是一款基于 Spring Boot 构建的全功能在线面试刷题平台，采用搜索引擎技术，实现题库管理、题目检索、在线刷题、刷题记录可视化等功能，为用户提供智能高效的刷题体验。
 
-## 模板特点
+---
 
-### 主流框架 & 特性
+### 核心功能模块
 
-- Spring Boot 2.7.x（贼新）
-- Spring MVC
-- MyBatis + MyBatis Plus 数据访问（开启分页）
-- Spring Boot 调试工具和项目处理器
-- Spring AOP 切面编程
-- Spring Scheduler 定时任务
-- Spring 事务注解
+#### 题库管理
+- 管理员可创建/修改题库信息
+- 支持批量添加、移除、删除题目，提高维护效率
 
-### 数据存储
+#### 用户刷题
+- 支持分词检索题目（基于 Elasticsearch）
+    - 模糊匹配、关键词高亮、分页加载
+- 刷题签到以日历视图展示，直观反映用户每天的学习记录
 
-- MySQL 数据库
-- Redis 内存数据库
-- Elasticsearch 搜索引擎
-- 腾讯云 COS 对象存储
+#### 系统管理
+- 接入 Sa-Token 实现同端登录互斥、权限控制，支持多角色多层级权限配置（如菜单权限、接口权限）
+- 日志管理模块记录用户操作与异常事件
+- 后台集成 Druid 监控界面，进行 SQL 性能分析与慢查询排查
 
-### 工具类
+---
 
-- Easy Excel 表格处理
-- Hutool 工具库
-- Apache Commons Lang3 工具类
-- Lombok 注解
+### 性能与安全优化
 
-### 业务特性
+- **Redis 缓存**：加速题库与用户信息读取，减少数据库压力
+- **Druid**：用于数据库连接池管理与 SQL 监控
+- **HotKey + Sentinel**：
+    - 实现热点参数限流与服务熔断，保障系统稳定性
+- **Nacos**：支持动态配置刷新与服务注册发现
+- **Sa-Token**：实现登录认证、权限校验、Session 管理，确保系统安全性
 
-- 业务代码生成器（支持自动生成 Service、Controller、数据模型代码）
-- Spring Session Redis 分布式登录
-- 全局请求响应拦截器（记录日志）
-- 全局异常处理器
-- 自定义错误码
-- 封装通用响应类
-- Swagger + Knife4j 接口文档
-- 自定义权限注解 + 全局校验
-- 全局跨域处理
-- 长整数丢失精度解决
-- 多环境配置
+---
 
-
-## 业务功能
-
-- 提供示例 SQL（用户、帖子、帖子点赞、帖子收藏表）
-- 用户登录、注册、注销、更新、检索、权限管理
-- 帖子创建、删除、编辑、更新、数据库检索、ES 灵活检索
-- 帖子点赞、取消点赞
-- 帖子收藏、取消收藏、检索已收藏帖子
-- 帖子全量同步 ES、增量同步 ES 定时任务
-- 支持微信开放平台登录
-- 支持微信公众号订阅、收发消息、设置菜单
-- 支持分业务的文件上传
-
-### 单元测试
-
-- JUnit5 单元测试
-- 示例单元测试类
-
-### 架构设计
-
-- 合理分层
-
-
-## 快速上手
-
-> 所有需要修改的地方鱼皮都标记了 `todo`，便于大家找到修改的位置~
-
-### MySQL 数据库
-
-1）修改 `application.yml` 的数据库配置为你自己的：
-
-```yml
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/my_db
-    username: root
-    password: 123456
-```
-
-2）执行 `sql/create_table.sql` 中的数据库语句，自动创建库表
-
-3）启动项目，访问 `http://localhost:8101/api/doc.html` 即可打开接口文档，不需要写前端就能在线调试接口了~
-
-![](doc/swagger.png)
-
-### Redis 分布式登录
-
-1）修改 `application.yml` 的 Redis 配置为你自己的：
-
-```yml
-spring:
-  redis:
-    database: 1
-    host: localhost
-    port: 6379
-    timeout: 5000
-    password: 123456
-```
-
-2）修改 `application.yml` 中的 session 存储方式：
-
-```yml
-spring:
-  session:
-    store-type: redis
-```
-
-3）移除 `MainApplication` 类开头 `@SpringBootApplication` 注解内的 exclude 参数：
-
-修改前：
-
-```java
-@SpringBootApplication(exclude = {RedisAutoConfiguration.class})
-```
-
-修改后：
-
-
-```java
-@SpringBootApplication
-```
-
-### Elasticsearch 搜索引擎
-
-1）修改 `application.yml` 的 Elasticsearch 配置为你自己的：
-
-```yml
-spring:
-  elasticsearch:
-    uris: http://localhost:9200
-    username: root
-    password: 123456
-```
-
-2）复制 `sql/post_es_mapping.json` 文件中的内容，通过调用 Elasticsearch 的接口或者 Kibana Dev Tools 来创建索引（相当于数据库建表）
-
-```
-PUT post_v1
-{
- 参数见 sql/post_es_mapping.json 文件
-}
-```
-
-这步不会操作的话需要补充下 Elasticsearch 的知识，或者自行百度一下~
-
-3）开启同步任务，将数据库的帖子同步到 Elasticsearch
-
-找到 job 目录下的 `FullSyncPostToEs` 和 `IncSyncPostToEs` 文件，取消掉 `@Component` 注解的注释，再次执行程序即可触发同步：
-
-```java
-// todo 取消注释开启任务
-//@Component
-```
-
-### 业务代码生成器
-
-支持自动生成 Service、Controller、数据模型代码，配合 MyBatisX 插件，可以快速开发增删改查等实用基础功能。
-
-找到 `generate.CodeGenerator` 类，修改生成参数和生成路径，并且支持注释掉不需要的生成逻辑，然后运行即可。
-
-```
-// 指定生成参数
-String packageName = "com.yupi.mianshizhushou";
-String dataName = "用户评论";
-String dataKey = "userComment";
-String upperDataKey = "UserComment";
-```
-
-生成代码后，可以移动到实际项目中，并且按照 `// todo` 注释的提示来针对自己的业务需求进行修改。
+### 可扩展性与亮点
+- 日历记录刷题数据，便于后期接入刷题统计与数据可视化
+- 高度模块化设计，便于扩展至多端（PC、H5、小程序）
+- 后续可拓展 AI 题目推荐、学习路径规划等智能学习功能
